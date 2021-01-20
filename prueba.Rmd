@@ -1,5 +1,5 @@
 ---
-title: "Prueba"
+title: "Borrador"
 output: html_document
 ---
 
@@ -7,24 +7,55 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+Prendo las librerías necesarias 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(tidyverse)
+library(haven)
 ```
 
-## Including Plots
+# Importando, limpiando y transformando datos 
 
-You can also embed plots, for example:
+Guardo como objeto los .dta correspondientes a los 4 países seleccionados para realizar el trabajo (Argentina, Brasil, Chile y Uruguay)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+Argentina <- read_dta('~/Desktop/DATA/LAPOP Argentina.dta')
+Brasil <- read_dta('~/Desktop/DATA/LAPOP Brasil.dta')
+Chile <- read_dta('~/Desktop/DATA/LAPOP Chile.dta')
+Uruguay <- read_dta('~/Desktop/DATA/LAPOP Uruguay.dta')
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Limpio los 4 dataframes de las variables que no voy a utilizar y los guardo nuevamente como objetos
 
-jshdkajsdkjhaskjdhas
+```{r}
+Argentinac <- select(Argentina, uniq_id, formal, pais, a4, l1, prot3, b21, ros4, redist1, redist2a, redist3, pn4, vb10, pol1)
+Brasilc <- select(Brasil, uniq_id, formal, pais, a4, l1, prot3, b21, ros4, redist1, redist2a, redist3, pn4, vb10, pol1)
+Chilec <- select(Chile, uniq_id, formal, pais, a4, l1, prot3, b21, ros4, redist1, redist2a, redist3, pn4, vb10, pol1)
+Uruguayc <- select(Uruguay, uniq_id, formal, pais, a4, l1, prot3, b21, ros4, redist1, redist2a, redist3, pn4, vb10, pol1)
+```
+
+Unifico verticalmente los 4 dataframes en un solo objeto y limpiamos el _environment_ 
+
+```{r}
+Base <- bind_rows(Argentinac, Brasilc, Chilec, Uruguayc)
+rm(Argentina, Argentinac, Brasil, Brasilc, Chile, Chilec, Uruguay, Uruguayc)
+```
+
+Ante todo, a la hora de trasnformar las variables de nuestro dataset, vamos a elminar las observaciones que no posean valor en la variable _formal_. Esto resulta necesario dado que nuestro objetivo general va a ser observar las diferencias en las preferencias de trabajadores formales e informales. 
+
+```{r}
+Base <- drop_na(Base, formal)
+```
+
+Posteriormente, vamos a generar dos variables categóricas que nos permitan realizar una correcta visualización de la distribución de preferencias de los encuestados de acuerdo a su nacionalidad y relación laboral 
+
+```{r}
+Base <- Base %>% mutate(Nacionalidad = case_when(pais == 17 ~ 'Argentina', pais == 14 ~ 'Uruguay', pais == 15 ~ 'Brasil', pais == 13 ~ 'Chile'))
+
+Base <- Base %>% 
++ mutate(Formalidad = case_when(formal == 1 ~ 'Formal', formal == 2 ~ 'Informal'))
+```
+
+# Gráficos 
+
+
