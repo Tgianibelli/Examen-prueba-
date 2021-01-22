@@ -13,6 +13,7 @@ Prendo las librerías necesarias
 library(tidyverse)
 library(haven)
 library(ggthemes)
+library(patchwork)
 ```
 
 # Importando, limpiando y transformando datos 
@@ -65,11 +66,50 @@ Base <- Base %>%
 Base <- Base %>% 
   mutate(Protesta = case_when(prot3 == 1 ~ 'Participó',
                               prot3 == 2 ~ 'No participó'))
+
+Base <- Base %>% 
+  mutate(Problemas = case_when(a4 == 1 ~ 'Economía',
+                               a4 == 2 ~ 'Inflación',
+                               a4 == 3 ~ 'Desempleo',
+                               a4 == 4 ~ 'Pobreza',
+                               a4 == 5 ~ 'Delincuencia',
+                               a4 == 6 ~ 'Protestas populares',
+                               a4 == 7 ~ 'Falta de tierra',
+                               a4 == 9 ~ 'Falta de crédito',
+                               a4 == 10 ~ 'Medio ambiente',
+                               a4 == 11 ~ 'Drogadicción',
+                               a4 == 12 ~ 'Narcotráfico',
+                               a4 == 13 ~ 'Corrupción',
+                               a4 == 14 ~ 'Pandillas',
+                               a4 == 15 ~ 'Mal gobierno',
+                               a4 == 16 ~ 'Migración',
+                               a4 == 18 ~ 'Malos caminos',
+                               a4 == 19 ~ 'Falta de agua',
+                               a4 == 20 ~ 'Explosión demográfica',
+                               a4 == 21 ~ 'Calidad educativa',
+                               a4 == 22 ~ 'Calidad sanitaria',
+                               a4 == 24 ~ 'Falta de electricidad',
+                               a4 == 25 ~ 'Discriminación',
+                               a4 == 26 ~ 'Deuda externa',
+                               a4 == 27 ~ 'Falta de seguridad',
+                               a4 == 30 ~ 'Conflicto armado',
+                               a4 == 31 ~ 'Secuestro',
+                               a4 == 32 ~ 'Desplazamiento forzado',
+                               a4 == 33 ~ 'Terrorismo',
+                               a4 == 55 ~ 'Vivienda',
+                               a4 == 56 ~ 'Derechos humanos',
+                               a4 == 57 ~ 'Violencia',
+                               a4 == 58 ~ 'Desigualdad',
+                               a4 == 59 ~ 'Los políticos',
+                               a4 == 60 ~ 'Servicio transporte',
+                               a4 == 61 ~ 'Impunidad',
+                               a4 == 70 ~ 'Otro',
+                               a4 == 80 ~ 'Violencia contra mujer'))
 ```
 
 # Gráficos 
 
-Ante todo tenemos que comenzar produciendo una serie de gráficos multi-panel que permitan observar la distribución de peferencias de acuerdo a status laboral y nacionalidad de los encuestados. Para ello vamos a usar en general _ggplot2_ y en específico la función de _facetwrap_. 
+Realizamos una serie de gráficos multi-panel que permitan observar la distribución de peferencias de acuerdo a status laboral y nacionalidad de los encuestados. Para ello vamos a usar en general _ggplot2_ y en específico la función de _facetwrap_. 
 
 Comenzamos observando la distribución de preferencias izquierda/derecha
 
@@ -334,21 +374,307 @@ ggplot(Basecount, aes(pol1, n)) +
 
 ```
 
-Finalmente, analizamos el tipo de problemas que los encuestados encuentran más relevantes en su vida diaria
+Finalmente, analizamos el tipo de problemas que los encuestados encuentran más relevantes en su vida diaria. Para ello vamos a tener que realizar una serie de modificaciones a nuestra base de datos. En primer lugar, dado que la variable que deseamos analizar ( _a4_ ) cuenta con una cantidad de categorías en exceso elevada, y nuestro interés es enfocarnos en los problemas con mayor cantidad de menciones, debemos reducir la cantidad de categorías que vamos a reproducir en nuestros graficos. Para ello, debemos realizar una serie de recortes en nuestro _dataframe_ no sólo en términos de cantidad de observaciones en las categorías de nuestra variable ( _a4_ ) sino también siguiendo los distintos valores que pueden tener nuestras observaciones en términos de status laboral y nacionalidad. En segundo lugar, y dado que _ggplot2_ ordena el eje x por default en términos alfabéticos, debemos alterar explicitamente el orden de los _factor levels_ para que el gráfico aparezca ordenado siguiendo un criterio numérico (cantida de observaciones). Finalmente, haciendo uso de _patchwork_ realizamos una serie de gráficos combinados que nos permiten observar la distribución de preferencias siguiendo las líneas de status laboral y en cada país en específico. 
 
 ```{r}
+
+# Formales - General
 
 Basef <- subset(Base, Base$Formalidad == 'Formal')
 
 a <- Basef %>% 
-  group_by(a4) %>% 
+  group_by(Problemas) %>% 
   count() %>% 
   arrange(desc(n)) %>% 
-  filter(n >= 200) %>% 
+  filter(n >= 150)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
-ggplot(a) +
-  geom_bar(aes(x = a4, y = n), stat = 'identity') 
+Formales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Formales',
+       x = '',
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Informales - General
+
+Basef <- subset(Base, Base$Formalidad == 'Informal')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 75)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Informales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Informales', 
+       x = '', 
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Gráfico conjunto - General
+
+Formales + Informales +
+  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país?',
+                  caption = 'LAPOP',
+                  theme = theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        plot.caption = element_text(face = 'italic'))) 
+
+# Formales - Argentina
+
+Basef <- subset(Base, Base$Formalidad == 'Formal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Argentina')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 30)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Formales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Formales',
+       x = '',
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Informales - Argentina
+
+Basef <- subset(Base, Base$Formalidad == 'Informal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Argentina')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 20)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Informales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Informales', 
+       x = '', 
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Gráfico conjunto - Argentina
+
+Formales + Informales +
+  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Argentina',
+                  caption = 'LAPOP',
+                  theme = theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        plot.caption = element_text(face = 'italic'))) 
+
+# Formales - Brasil 
+
+Basef <- subset(Base, Base$Formalidad == 'Formal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Brasil')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 30)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Formales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Formales',
+       x = '',
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Informales - Brasil
+
+Basef <- subset(Base, Base$Formalidad == 'Informal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Brasil')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 20)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Informales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Informales', 
+       x = '', 
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Gráfico conjunto - Brasil
+
+Formales + Informales +
+  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Brasil',
+                  caption = 'LAPOP',
+                  theme = theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        plot.caption = element_text(face = 'italic')))
+
+# Formales - Chile 
+
+Basef <- subset(Base, Base$Formalidad == 'Formal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Chile')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 35)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Formales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Formales',
+       x = '',
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Informales - Chile
+
+Basef <- subset(Base, Base$Formalidad == 'Informal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Chile')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 15)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Informales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Informales', 
+       x = '', 
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Gráfico conjunto - Chile 
+
+Formales + Informales +
+  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Chile',
+                  caption = 'LAPOP',
+                  theme = theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        plot.caption = element_text(face = 'italic')))
+
+# Formales - Uruguay 
+
+Basef <- subset(Base, Base$Formalidad == 'Formal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Uruguay')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 45)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Formales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Formales',
+       x = '',
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Informales - Uruguay
+
+Basef <- subset(Base, Base$Formalidad == 'Informal')
+Basef <- subset(Basef, Basef$Nacionalidad == 'Uruguay')
+
+a <- Basef %>% 
+  group_by(Problemas) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  filter(n >= 10)
+
+a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
+
+
+Informales <- ggplot(a) +
+  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  labs(title = 'Informales', 
+       x = '', 
+       y = 'N') +
+  theme_minimal() +
+  theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
+
+# Gráfico conjunto - Uruguay
+
+Formales + Informales +
+  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Uruguay',
+                  caption = 'LAPOP',
+                  theme = theme(text = element_text('Avenir Next Condensed'),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        plot.caption = element_text(face = 'italic')))
 
 ```
 
