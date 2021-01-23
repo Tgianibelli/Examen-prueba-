@@ -68,6 +68,16 @@ Base <- Base %>%
                               prot3 == 2 ~ 'No participó'))
 
 Base <- Base %>% 
+  mutate(Simpatía = case_when(vb10 == 1 ~ 'Si',
+                              vb10 == 2 ~ 'No'))
+
+Base <- Base %>% 
+  mutate(Interés = case_when(pol1 == 1 ~ 'Mucho',
+                             pol1 == 2 ~ 'Algo',
+                             pol1 == 3 ~ 'Poco',
+                             pol1 == 4 ~ 'Nada'))
+
+Base <- Base %>% 
   mutate(Problemas = case_when(a4 == 1 ~ 'Economía',
                                a4 == 2 ~ 'Inflación',
                                a4 == 3 ~ 'Desempleo',
@@ -147,21 +157,21 @@ Observamos la distribución de encuestados que participaron en protestas en los 
 ```{r}
 Basecount <- count(Base, Protesta, Formalidad, Nacionalidad) 
 
-ggplot(data = subset(Basecount, !is.na(Protesta)), aes(Protesta, n)) +
+ggplot(data = subset(Basecount, !is.na(Protesta)), aes(Protesta, n, fill = Protesta)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿Participó en una protesta en los últimos 12 meses?',
-       y = 'N',
+  labs(y = 'N',
+       x = '',
        caption = 'LAPOP') +
   theme_minimal() +
   theme(text = element_text('Avenir Next Condensed'),
         plot.caption = element_text(face = 'italic')) 
 
-ggplot(data = subset(Basecount, !is.na(Protesta)), aes(Protesta, n)) +
+ggplot(data = subset(Basecount, !is.na(Protesta)), aes(Protesta, n, fill = Protesta)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿Participó en una protesta en los últimos 12 meses?',
-       y = 'N',
+  labs(y = 'N',
+       x = '',
        caption = 'LAPOP') +
   theme_minimal() +
   theme(text = element_text('Avenir Next Condensed'),
@@ -290,12 +300,12 @@ Indagamos en posibles diferencias que puedan llegar a existir en términos de pa
 
 #Confianza en partidos políticos
 
-Basecount <- count(Base, b21, Formalidad, Nacionalidad)
+Basecount <- count(Base, b21, Formalidad, Nacionalidad) 
 
 ggplot(Basecount, aes(b21, n)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿Hasta que punto usted tiene confianza en los partidos políticos?',
+  labs(x = 'Confianza en los partidos políticos',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -307,7 +317,7 @@ ggplot(Basecount, aes(b21, n)) +
 ggplot(Basecount, aes(b21, n)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿Hasta que punto usted tiene confianza en los partidos políticos?',
+  labs(x = 'Confianza en los partidos políticos',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -318,59 +328,51 @@ ggplot(Basecount, aes(b21, n)) +
 
 # Simpatía con partido político
 
-Basecount <- count(Base, vb10, Formalidad, Nacionalidad)
+Basecount <- count(Base, Simpatía, Formalidad, Nacionalidad)
 
-ggplot(Basecount, aes(vb10, n)) +
+ggplot(data = subset(Basecount, !is.na(Simpatía)), aes(Simpatía, n, fill = Simpatía)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿En este momento simpatiza con algún partido político?',
+  labs(x = 'Simpatía por partido político',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
   theme(text = element_text('Avenir Next Condensed'),
-        plot.caption = element_text(face = 'italic')) +
-  scale_x_continuous(breaks = c(1:2), 
-                     labels = c('Si', "No"))
+        plot.caption = element_text(face = 'italic')) 
 
-ggplot(Basecount, aes(vb10, n)) +
+ggplot(data = subset(Basecount, !is.na(Simpatía)), aes(Simpatía, n, fill = Simpatía)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿En este momento simpatiza con algún partido político?',
+  labs(x = 'Simpatía por partido político',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
   theme(text = element_text('Avenir Next Condensed'),
-        plot.caption = element_text(face = 'italic')) +
-    scale_x_continuous(breaks = c(1:2), 
-                     labels = c('Si', 'No'))
+        plot.caption = element_text(face = 'italic'))
 
 # Interés en política 
 
-Basecount <- count(Base, pol1, Formalidad, Nacionalidad)
+Basecount <- count(Base, Interés, Formalidad, Nacionalidad)
 
-ggplot(Basecount, aes(pol1, n)) +
+ggplot(data = subset(Basecount, !is.na(Interés)), aes(Interés, n, fill = Interés)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿Que tanto interés tiene usted en política?',
+  labs(x = 'Interés en política',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
   theme(text = element_text('Avenir Next Condensed'),
-        plot.caption = element_text(face = 'italic')) +
-  scale_x_continuous(breaks = c(1:4), 
-                     labels = c('Mucho', 'Algo', 'Poco', 'Nada'))
+        plot.caption = element_text(face = 'italic'))
 
-ggplot(Basecount, aes(pol1, n)) +
+ggplot(data = subset(Basecount, !is.na(Interés)), aes(Interés, n, fill = Interés)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿Que tanto interés tiene usted en política?',
+  labs(x = 'Interés en política',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
   theme(text = element_text('Avenir Next Condensed'),
-        plot.caption = element_text(face = 'italic')) +
-      scale_x_continuous(breaks = c(1:4), 
-                     labels = c('Mucho', 'Algo', 'Poco', 'Nada'))
+        plot.caption = element_text(face = 'italic')) 
 
 ```
 
