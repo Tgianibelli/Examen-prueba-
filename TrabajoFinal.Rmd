@@ -1,10 +1,13 @@
 ---
 title: "Análisis LAPOP - Formalidad/Informalidad"
-output: html_document
+author: 'Tomás J. Gianibelli'
+date: 'Enero, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: architect
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 ```
 
 Prendo las librerías necesarias 
@@ -188,7 +191,7 @@ Basecount <- count(Base, ros4, Formalidad, Nacionalidad)
 ggplot(Basecount, aes(ros4, n)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿Apoya políticas que reduzan la desigualdad de ingresos entre ricos y pobres?',
+  labs(x = '',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -200,7 +203,7 @@ ggplot(Basecount, aes(ros4, n)) +
 ggplot(Basecount, aes(ros4, n)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿Apoya políticas que reduzan la desigualdad de ingresos entre ricos y pobres?',
+  labs(x = '',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -209,14 +212,14 @@ ggplot(Basecount, aes(ros4, n)) +
   scale_x_continuous(breaks = c(1:7), 
                      labels = c('En contra', '2', '3', '4', '5', '6', 'A favor'))
 
-#Medidas de asistencia a pobres
+# Medidas de asistencia a pobres
 
 Basecount <- count(Base, redist1, Formalidad, Nacionalidad)         
 
 ggplot(Basecount, aes(redist1, n)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿El gobierno debe gastar más en ayudar a los pobres?',
+  labs(x = '',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -228,7 +231,7 @@ ggplot(Basecount, aes(redist1, n)) +
 ggplot(Basecount, aes(redist1, n)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿El gobierno debe gastar más en ayudar a los pobres?',
+  labs(x = '',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -237,14 +240,14 @@ ggplot(Basecount, aes(redist1, n)) +
   scale_x_continuous(breaks = c(1:7), 
                      labels = c('En contra', '2', '3', '4', '5', '6', 'A favor'))
 
-#Ricos pagan muchos impuestos pero reciben pocos servicios
+# Ricos pagan muchos impuestos pero reciben pocos servicios
 
 Basecount <- count(Base, redist2a, Formalidad, Nacionalidad) 
 
 ggplot(Basecount, aes(redist2a, n)) +
   geom_col() +
   facet_wrap(~ Formalidad) +
-  labs(x = '¿Está bien que los ricos paguen muchos impuestos pero reciban pocos servicios?',
+  labs(x = '',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -256,7 +259,7 @@ ggplot(Basecount, aes(redist2a, n)) +
 ggplot(Basecount, aes(redist2a, n)) +
   geom_col() +
   facet_wrap(~ Nacionalidad + Formalidad) +
-  labs(x = '¿Está bien que los ricos paguen muchos impuestos pero reciban pocos servicios?',
+  labs(x = '',
        y = 'N',
        caption = 'LAPOP') +
   theme_minimal() +
@@ -298,7 +301,7 @@ Indagamos en posibles diferencias que puedan llegar a existir en términos de pa
 
 ```{r}
 
-#Confianza en partidos políticos
+# Confianza en partidos políticos
 
 Basecount <- count(Base, b21, Formalidad, Nacionalidad) 
 
@@ -394,7 +397,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Formales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Formales',
        x = '',
        y = 'N') +
@@ -402,7 +405,8 @@ Formales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Informales - General
 
@@ -418,7 +422,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Informales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Informales', 
        x = '', 
        y = 'N') +
@@ -426,12 +430,13 @@ Informales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Gráfico conjunto - General
 
 Formales + Informales +
-  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país?',
+  plot_annotation(title = '',
                   caption = 'LAPOP',
                   theme = theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5, 
@@ -453,7 +458,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Formales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Formales',
        x = '',
        y = 'N') +
@@ -461,7 +466,8 @@ Formales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none') 
 
 # Informales - Argentina
 
@@ -478,7 +484,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Informales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Informales', 
        x = '', 
        y = 'N') +
@@ -486,12 +492,13 @@ Informales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Gráfico conjunto - Argentina
 
 Formales + Informales +
-  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Argentina',
+  plot_annotation(title = '',
                   caption = 'LAPOP',
                   theme = theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5, 
@@ -513,7 +520,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Formales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Formales',
        x = '',
        y = 'N') +
@@ -521,7 +528,8 @@ Formales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Informales - Brasil
 
@@ -538,7 +546,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Informales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Informales', 
        x = '', 
        y = 'N') +
@@ -546,12 +554,13 @@ Informales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Gráfico conjunto - Brasil
 
 Formales + Informales +
-  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Brasil',
+  plot_annotation(title = '',
                   caption = 'LAPOP',
                   theme = theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5, 
@@ -573,7 +582,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Formales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Formales',
        x = '',
        y = 'N') +
@@ -581,7 +590,8 @@ Formales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Informales - Chile
 
@@ -598,7 +608,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Informales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Informales', 
        x = '', 
        y = 'N') +
@@ -606,12 +616,13 @@ Informales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Gráfico conjunto - Chile 
 
 Formales + Informales +
-  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Chile',
+  plot_annotation(title = '',
                   caption = 'LAPOP',
                   theme = theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5, 
@@ -633,7 +644,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Formales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Formales',
        x = '',
        y = 'N') +
@@ -641,7 +652,8 @@ Formales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Informales - Uruguay
 
@@ -658,7 +670,7 @@ a$Problemas <- factor(a$Problemas, levels = a$Problemas[order(a$n)])
 
 
 Informales <- ggplot(a) +
-  geom_bar(aes(x = Problemas, y = n), stat = 'identity') +
+  geom_bar(aes(x = Problemas, y = n, fill = Problemas), stat = 'identity') +
   labs(title = 'Informales', 
        x = '', 
        y = 'N') +
@@ -666,12 +678,13 @@ Informales <- ggplot(a) +
   theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1))
+                                   hjust = 1),
+        legend.position = 'none')
 
 # Gráfico conjunto - Uruguay
 
 Formales + Informales +
-  plot_annotation(title = '¿Cual es el problema más grave que está enfrentado su país? - Uruguay',
+  plot_annotation(title = '',
                   caption = 'LAPOP',
                   theme = theme(text = element_text('Avenir Next Condensed'),
         plot.title = element_text(hjust = 0.5, 
